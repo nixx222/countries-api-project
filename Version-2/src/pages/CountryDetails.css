@@ -1,0 +1,22 @@
+.flexcard {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+.country-name {
+grid-column: 2/2;
+}
+.population {
+
+}
+
+.region {
+    grid-column: 2/2;
+}
+
+.capital {
+    grid-column: 2/2;
+}
+
+.searched-for{
+    grid-column: 2/2;
+}
