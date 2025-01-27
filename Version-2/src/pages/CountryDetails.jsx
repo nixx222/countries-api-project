@@ -1,3 +1,7 @@
+import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useState } from 'react'; 
+
 const CountryDetails = ({ countryCall, savedCountries, setSavedCountries }) => {
   const { alpha3Code } = useParams();
   const navigate = useNavigate();
@@ -7,15 +11,22 @@ const CountryDetails = ({ countryCall, savedCountries, setSavedCountries }) => {
     return <p>Country not found!</p>;
   }
 
-  // Function to save the country
   const saveCountry = (country) => {
-    if (!savedCountries.some((saved) => saved.cca3 === country.cca3)) {
-      setSavedCountries((prev) => [...prev, country]);
+    if (Array.isArray(savedCountries) && !savedCountries.some((saved) => saved.cca3 === country.cca3)) {
+      setSavedCountries((prev) => {
+        const updatedCountries = [...prev, country];
+        localStorage.setItem("savedCountries", JSON.stringify(updatedCountries)); // Save updated array to localStorage
+        console.log("Saved countries to localStorage:", updatedCountries); // Debug log
+        return updatedCountries;
+      });
       console.log(`${country.name.common} saved!`);
+    } else if (!Array.isArray(savedCountries)) {
+      console.error("savedCountries is not defined or not an array.");
     } else {
       console.log(`${country.name.common} is already saved.`);
     }
   };
+  
 
   return (
     <div>
@@ -28,10 +39,7 @@ const CountryDetails = ({ countryCall, savedCountries, setSavedCountries }) => {
         <p className="population">Population: {country.population}</p>
         <p className="region">Region: {country.region}</p>
         <p className="capital">Capital: {country.capital}</p>
-        <button
-          onClick={() => saveCountry(country)}
-          className="save-button"
-        >
+        <button onClick={() => saveCountry(country)} className="save-button">
           Save Country
         </button>
       </div>
@@ -39,4 +47,4 @@ const CountryDetails = ({ countryCall, savedCountries, setSavedCountries }) => {
   );
 };
 
-export default CountryDetails; // This is a default export
+export default CountryDetails;

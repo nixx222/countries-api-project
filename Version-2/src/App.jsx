@@ -49,6 +49,8 @@ const App = () => {
     localStorage.setItem("savedCountries", JSON.stringify(savedCountries));
   }, [savedCountries]);
 
+  console.log(savedCountries);
+
   return (
     <div>
       <Header /> {/* Render Header */}
@@ -57,11 +59,22 @@ const App = () => {
         <Route path="/" element={<Home countryCall={countryCall} />} />
         <Route
           path="/saved-countries"
-          element={<SavedCountries countryCall={countryCall} />}
+          element={
+            <SavedCountries
+              countryCall={countryCall}
+              savedCountries={savedCountries}
+            />
+          }
         />
         <Route
           path="/country/:alpha3Code"
-          element={<CountryDetails countryCall={countryCall} />}
+          element={
+            <CountryDetails
+              countryCall={countryCall}
+              savedCountries={savedCountries}
+              setSavedCountries={setSavedCountries}
+            />
+          }
         />
       </Routes>
     </div>
