@@ -20,6 +20,15 @@ Countries- API Project Folder
 1. Create a webserver folder inside the root countries-API folder, called 'server'
 2. Inside the 'server' folder, create the web server instance:
     1. Adding NPM = package. json, installing express, installing pg, adding .gitignore, adding the src folder (see full list in ________)
+    // Steps for creating a Node/Express server
+            // 1. In your project folder, run npm init
+            // 2. Install express by running npm install express
+            // 3. Add a .gitignore to our project for the node_modules
+            // 4. Create a src folder to hold our custom JS code, create a index.js file to store all of our web server code.
+            // 5. Add all of your import statements (3rd party modules, Node modules, your custom modules)
+            // 6. Add the "boilerplate" code for Express, creating the instance, adding the port, adding the listener
+            // 7. Add API endpoints + helper functions
+
 3. Add the config file to connect to our database (same one used in our programming_languages in our ________)
 4. Build our express app (in our index.js file), starting with our imports and the Express boilerplate code. 
 5. Reference our API endpoint document (that we created that listed out the different API endpdoints) create the endpoints and helper functions for each user action. POST - user submit form, POST - user adds a saved country, GET- get user data, POST - updates country count for each country. Be sure to have an API request for each of these user actions. 
