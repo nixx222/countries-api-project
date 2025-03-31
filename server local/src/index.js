@@ -1,15 +1,7 @@
 import express from "express"; //external module for using express
 import pg from "pg";
 const { Client } = pg;
-
-let config = {
-  user: process.env.USER,
-  host: process.env.HOST,
-  databse: process.env.DATABASE,
-  password: process.env.password,
-  port: process.env.DATABASE_PORT,
-  ssl: true,
-};
+import config from "./config.js"; // internal module for connecting to our config file
 
 //boiler plate express code which allows us to run our web server
 const app = express();
@@ -19,6 +11,7 @@ const port = 3000;
 app.use(express.json());
 
 //config is saying "this is how we connect to our database", and now I need tools.
+
 
 //Always connect to the database, give the code, then close the database or else it will time out.
 
@@ -33,24 +26,22 @@ async function getUser() {
   const client = new Client(config);
 
   try {
-    await client.connect();
-    const result = await client.query(
-      "SELECT user_id FROM user_profile WHERE user_id = 0"
-    );
+      await client.connect();
+      const result = await client.query("SELECT user_id FROM user_profile WHERE user_id = 0");
+      
+      console.log('Query Result:', result.rows); // Logs full result for debugging
 
-    console.log("Query Result:", result.rows); // Logs full result for debugging
+      if (!result.rows.length) {
+          console.log('No users found');
+          return { message: 'No users found' }; // Return structured message instead of undefined
+      }
 
-    if (!result.rows.length) {
-      console.log("No users found");
-      return { message: "No users found" }; // Return structured message instead of undefined
-    }
-
-    return result.rows[0]; // Return the first user (if found)
+      return result.rows[0]; // Return the first user (if found)
   } catch (error) {
-    console.error("Error fetching user:", error);
-    return { error: "Internal Server Error" }; // Return an error object instead of crashing
+      console.error('Error fetching user:', error);
+      return { error: 'Internal Server Error' }; // Return an error object instead of crashing
   } finally {
-    await client.end(); // Ensure client disconnects
+      await client.end(); // Ensure client disconnects
   }
 }
 // async function getUser() {
@@ -62,18 +53,17 @@ async function getUser() {
 // }
 
 //Saved Country /
-async function addOneCountry(obj) {
-  //obj is the carrier or bucket that carries the users data. In this case, it is the country they are wanting to add. It coorelates with line 74 req.body. obj = equation req.body = values replaced in the equation.
+async function addOneCountry(obj) { //obj is the carrier or bucket that carries the users data. In this case, it is the country they are wanting to add. It coorelates with line 74 req.body. obj = equation req.body = values replaced in the equation.
   const client = new Client(config); //creating our database Client with our config values
   await client.connect();
   await client.query(`INSERT INTO saved_countries (cca3, user_id, country_name) 
   VALUES ('${obj.cca3}', 0, '${obj.countryName}')`);
   await client.end();
+
 }
 
 // Submit User Info
-async function submitUserInfo(obj) {
-  //obj is the carrier or bucket that carries the users data. In this case, it is the country they are wanting to add. It coorelates with line 74 req.body. obj = equation req.body = values replaced in the equation.
+async function submitUserInfo(obj) { //obj is the carrier or bucket that carries the users data. In this case, it is the country they are wanting to add. It coorelates with line 74 req.body. obj = equation req.body = values replaced in the equation.
   const client = new Client(config); //creating our database Client with our config values
   await client.connect();
   await client.query(`INSERT INTO user_profile (username, email, country, bio) 
@@ -85,30 +75,27 @@ async function submitUserInfo(obj) {
 async function getSavedCountries() {
   const client = new Client(config);
   await client.connect();
-  let result = await client.query(
-    "SELECT country_name FROM saved_countries WHERE user_id = 0"
-  );
+  let result = await client.query("SELECT country_name FROM saved_countries WHERE user_id = 0");
   console.log(result.rows[0]);
   await client.end();
   return result.rows[0];
 }
 
 // Update Country Click
-async function updateClickTotal(country) {
-  //obj is the carrier or bucket that carries the users data. In this case, it is the country they are wanting to add. It coorelates with line 74 req.body. obj = equation req.body = values replaced in the equation.
+async function updateClickTotal(country) { //obj is the carrier or bucket that carries the users data. In this case, it is the country they are wanting to add. It coorelates with line 74 req.body. obj = equation req.body = values replaced in the equation.
   const client = new Client(config); //creating our database Client with our config values
   await client.connect();
-  await client.query(
-    `INSERT INTO country_count (cca3, click_amount) 
+  await client.query(`INSERT INTO country_count (cca3, click_amount) 
   VALUES ($1, 1)
   ON CONFLICT (cca3) 
   DO UPDATE SET click_amount = updateClickTotal.click_amount + 1
   RETURN click_amount`,
-    [cca3]
-  );
+  [cca3]);
   await client.end();
   return result.rows[0].click_amount;
 }
+
+
 
 ////////////////////////////////////////////////////////////////
 
@@ -150,5 +137,5 @@ app.post("/country-clicked/:country", async (req, res) => {
   res.send(JSONclickTotal);
 });
 
-//Refactor the add one language into a function that allows to to save one country.
-// I can follow the same process for the other API end points and helper functions as well.
+//Refactor the add one language into a function that allows to to save one country. 
+// I can follow the same process for the other API end points and helper functions as well. 
