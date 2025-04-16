@@ -141,7 +141,7 @@ app.get("/get-saved-countries", async (req, res) => {
 });
 
 //Update Country Clicks - On Country Details Page
-app.post("/country-clicked/:country", async (req, res) => {
+app.get("/country-clicked/:country", async (req, res) => {
   let country = req.params.country;
   console.log("this is req.params.country", req.params.country);
   let clickTotal = await updateClickTotal(country);
