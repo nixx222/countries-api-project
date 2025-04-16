@@ -1,34 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import { getDatabase, ref, set, onValue } from "firebase/database";
 
 const CountryCard = ({ countryCall }) => {
-  const db = getDatabase();
-  const countryId = countryCall.cca3; // Use the country's cca3 code as the unique ID
-
-  // State to hold the click count for the country
-  const [clickCount, setClickCount] = useState(0);
-
   // Function to handle "View Details" click
   const handleViewDetails = () => {
-    // Increment the click count locally
-    const newCount = clickCount + 1;
-    setClickCount(newCount);
+    // Retrieve the current counts from local storage
+    const counts = JSON.parse(localStorage.getItem("countryCounts")) || {};
 
-    // Save the updated count to Firebase
-    set(ref(db, 'counts/' + countryId), newCount);
+    // Increment the count for the clicked country
+    const countryId = countryCall.cca3; // Use the country's cca3 code as the unique ID
+    counts[countryId] = (counts[countryId] || 0) + 1;
+
+    // Save the updated counts back to local storage
+    localStorage.setItem("countryCounts", JSON.stringify(counts));
   };
-
-  // Listen for changes in the click count from Firebase
-  useEffect(() => {
-    const countRef = ref(db, 'counts/' + countryId);
-    onValue(countRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data !== null) {
-        setClickCount(data);
-      }
-    });
-  }, [db, countryId]);
 
   return (
     <div className="card-wrapper">
@@ -38,8 +23,6 @@ const CountryCard = ({ countryCall }) => {
         <p>{countryCall.population}</p>
         <p>{countryCall.region}</p>
         <p>{countryCall.capital}</p>
-        {/* Display the click count */}
-        <p>Clicks: {clickCount}</p>
         {/* Add a link to navigate to the CountryDetails page */}
         <Link to={`/country/${countryCall.cca3}`} onClick={handleViewDetails}>
           View Details

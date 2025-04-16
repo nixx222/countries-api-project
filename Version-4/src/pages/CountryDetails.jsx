@@ -1,71 +1,38 @@
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { getDatabase, ref, set, onValue } from "firebase/database";
+import { useState, useEffect } from "react"; // Added useEffect
 
 const CountryDetails = ({ countryCall }) => {
   const { alpha3Code } = useParams();
   const navigate = useNavigate();
   const country = countryCall.find((c) => c.cca3 === alpha3Code);
-  const db = getDatabase();
 
-  // State to store saved countries
-  const [savedCountries, setSavedCountries] = useState([]);
+  // State to store the visit count
+  const [visitCount, setVisitCount] = useState(0);
 
-  // State to store the click count for the current country
-  const [clickCount, setClickCount] = useState(0);
 
-  // Retrieve saved countries from Firebase when the component mounts
-  useEffect(() => {
-    const savedCountriesRef = ref(db, "savedCountries");
-    onValue(savedCountriesRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data !== null) {
-        setSavedCountries(data);
+  const saveCountry = async (country) => { 
+    console.log('this is country', country);
+    let myObj = {cca3: country.cca3, 
+      countryName: country.name.common
       }
-    });
-  }, [db]);
-
-  // Retrieve the click count for the current country from Firebase
-  useEffect(() => {
-    const clickCountRef = ref(db, `counts/${alpha3Code}`);
-    onValue(clickCountRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data !== null) {
-        setClickCount(data);
-      } else {
-        setClickCount(0); // Default to 0 if no count exists
+      console.log("this is myObj", myObj);
+    // Retrieve the existing saved countries from database
+      const response = await fetch("/api/add-country", {
+        method: "POST",
+        body: JSON.stringify(myObj),
+        headers: { "Content-Type": "application/json" },
       }
-    });
-  }, [db, alpha3Code]);
-
-  if (!country) {
-    return <p>Country not found!</p>;
-  }
-
-  const saveCountry = (country) => {
-    // Check if the country is already saved
-    const isCountryAlreadySaved = savedCountries.some(
-      (savedCountry) => savedCountry.cca3 === country.cca3
     );
+      console.log("Here is the data from savedCountries", response);
+    //be sure to include the keys for the key value pairs. 
+      //the backend needs specific objects with specific keys: Ex in the body include the 
+      //cca3 + countryName
+      }
+    
+console.log('this is countryCall', countryCall);
 
-    if (isCountryAlreadySaved) {
-      console.log("Country is already saved:", country.name.common);
-      return; // Exit the function if the country is already saved
-    }
 
-    // Add the new country to the array
-    const updatedSavedCountries = [...savedCountries, country];
-
-    // Save the updated array to Firebase
-    set(ref(db, "savedCountries"), updatedSavedCountries)
-      .then(() => {
-        console.log("Country saved to Firebase:", country.name.common);
-      })
-      .catch((error) => {
-        console.error("Error saving country to Firebase:", error);
-      });
-  };
 
   return (
     <div>
@@ -78,8 +45,8 @@ const CountryDetails = ({ countryCall }) => {
         <p className="population">Population: {country.population}</p>
         <p className="region">Region: {country.region}</p>
         <p className="capital">Capital: {country.capital}</p>
-        {/* Display the click count */}
-        <p className="click-count">This country has been viewed {clickCount} times.</p>
+        {/* Display the visit count */}
+        <p className="visit-count">This country has been viewed {visitCount} times.</p>
         <button onClick={() => saveCountry(country)} className="save-button">
           Save Country
         </button>

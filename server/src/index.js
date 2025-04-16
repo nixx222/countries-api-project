@@ -104,7 +104,7 @@ async function updateClickTotal(country) {
   ON CONFLICT (cca3) 
   DO UPDATE SET click_amount = updateClickTotal.click_amount + 1
   RETURN click_amount`,
-    [cca3]
+    [country]
   );
   await client.end();
   return result.rows[0].click_amount;
