@@ -145,13 +145,13 @@ app.get("/get-user", async (req, res) => {
 app.post("/add-country", async (req, res) => {
   console.log('this is request', req.body);
   await addOneCountry(req.body);
-  res.send("Yay! You added a country!"); //send a response to the front end
+  res.send(); //send a response to the front end
 });
 
 //Submit User Info - Saved Countries Page (NEXT)
 app.post("/submit-user-info", async (req, res) => {
   await submitUserInfo(req.body);
-  res.send("Yay! Your info has been submitted!"); //send a response to the front end
+  res.send(); //send a response to the front end
 });
 
 //Get saved countries - Saved Countries Page (COMPLETE)
