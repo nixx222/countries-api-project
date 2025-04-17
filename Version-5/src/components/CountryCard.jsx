@@ -39,9 +39,11 @@ const CountryCard = ({ countryCall }) => {
         <p>{countryCall.region}</p>
         <p>{countryCall.capital}</p>
         {/* Display the click count */}
-        <p>Clicks: {clickCount}</p>
+        {/* <p>Clicks: {clickCount}</p> */}
         {/* Add a link to navigate to the CountryDetails page */}
-        <Link to={`/country/${countryCall.cca3}`} onClick={handleViewDetails}>
+        <Link to={`/country/${countryCall.cca3}`} 
+        // onClick={handleViewDetails}
+        >
           View Details
         </Link>
       </div>
