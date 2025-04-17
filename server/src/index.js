@@ -10,8 +10,6 @@ let config = {
   port: process.env.DATABASE_PORT,
   ssl: true,
 };
-
-
 //boiler plate express code which allows us to run our web server
 const app = express();
 const port = 3000;
@@ -36,7 +34,7 @@ async function getUser() {
   try {
     await client.connect();
     const result = await client.query(
-      "SELECT user_id FROM user_profile WHERE user_id = 0"
+      "SELECT * FROM user_profile WHERE user_id = 1"
     );
 
     console.log("Query Result:", result.rows); // Logs full result for debugging
@@ -64,11 +62,15 @@ async function getUser() {
 
 //Saved Country /
 async function addOneCountry(obj) {
+  console.log('this is obj', obj);
   //obj is the carrier or bucket that carries the users data. In this case, it is the country they are wanting to add. It coorelates with line 74 req.body. obj = equation req.body = values replaced in the equation.
   const client = new Client(config); //creating our database Client with our config values
   await client.connect();
-  await client.query(`INSERT INTO saved_countries (cca3, user_id, country_name) 
-  VALUES ('${obj.cca3}', 0, '${obj.countryName}')`);
+  await client.query(`INSERT INTO saved_countries (cca3, user_id, country_name)
+  SELECT '${obj.cca3}', 1, '${obj.countryName}'
+  WHERE NOT EXISTS (
+    SELECT 1 FROM saved_countries 
+    WHERE cca3 = '${obj.cca3}' AND user_id = '1')`);
   await client.end();
 }
 
@@ -87,11 +89,11 @@ async function getSavedCountries() {
   const client = new Client(config);
   await client.connect();
   let result = await client.query(
-    "SELECT country_name FROM saved_countries WHERE user_id = 0"
+    "SELECT country_name FROM saved_countries WHERE user_id = 1"
   );
-  console.log(result.rows[0]);
+  console.log(result.rows);
   await client.end();
-  return result.rows[0];
+  return result.rows;
 }
 
 // Update Country Click
@@ -99,16 +101,16 @@ async function updateClickTotal(country) {
   //obj is the carrier or bucket that carries the users data. In this case, it is the country they are wanting to add. It coorelates with line 74 req.body. obj = equation req.body = values replaced in the equation.
   const client = new Client(config); //creating our database Client with our config values
   await client.connect();
-  await client.query(
+  const result = await client.query(
     `INSERT INTO country_count (cca3, click_amount) 
   VALUES ($1, 1)
   ON CONFLICT (cca3) 
-  DO UPDATE SET click_amount = updateClickTotal.click_amount + 1
-  RETURN click_amount`,
+  DO UPDATE SET click_amount = country_count.click_amount + 1
+  RETURNING click_amount`,
     [country]
   );
   await client.end();
-  return result.rows[0].click_amount;
+  return result.rows
 }
 
 ////////////////////////////////////////////////////////////////
@@ -120,32 +122,35 @@ async function updateClickTotal(country) {
 //     let user = await getUser();
 //     res.json(user);
 // });
+// Saved Countries Page (COMPLETE)
 app.get("/get-user", async (req, res) => {
   let user = await getUser();
   res.json(user);
 });
 
-//Adds a users saved country
+//Adds a users saved country - On Country Details Page
 app.post("/add-country", async (req, res) => {
+  console.log('this is request', req.body);
   await addOneCountry(req.body);
   res.send("Yay! You added a country!"); //send a response to the front end
 });
 
-//Submit User Info
+//Submit User Info - Saved Countries Page (NEXT)
 app.post("/submit-user-info", async (req, res) => {
   await submitUserInfo(req.body);
   res.send("Yay! Your info has been submitted!"); //send a response to the front end
 });
 
-//Get saved countries
+//Get saved countries - Saved Countries Page (COMPLETE)
 app.get("/get-saved-countries", async (req, res) => {
   let user = await getSavedCountries();
   res.json(user);
 });
 
-//Update Country Clicks
-app.post("/country-clicked/:country", async (req, res) => {
+//Update Country Clicks - On Country Details Page
+app.get("/country-clicked/:country", async (req, res) => {
   let country = req.params.country;
+  console.log("this is req.params.country", req.params.country);
   let clickTotal = await updateClickTotal(country);
   let JSONclickTotal = JSON.stringify(clickTotal);
   res.send(JSONclickTotal);
