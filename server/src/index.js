@@ -76,11 +76,24 @@ async function addOneCountry(obj) {
 
 // Submit User Info
 async function submitUserInfo(obj) {
-  //obj is the carrier or bucket that carries the users data. In this case, it is the country they are wanting to add. It coorelates with line 74 req.body. obj = equation req.body = values replaced in the equation.
-  const client = new Client(config); //creating our database Client with our config values
+  // obj is the carrier or bucket that carries the user's data.
+  // In this case, it is the country they are wanting to add.
+  // It correlates with line 74 req.body. obj = equation req.body = values replaced in the equation.
+  
+  const client = new Client(config); // creating our database Client with our config values
   await client.connect();
-  await client.query(`INSERT INTO user_profile (user_id, username, email, country, bio) 
-  VALUES ('1', '${obj.username}', '${obj.email}', '${obj.country}', '${obj.bio}')`);
+  
+  await client.query(`
+    INSERT INTO user_profile (user_id, username, email, country, bio)
+    VALUES ('1', '${obj.username}', '${obj.email}', '${obj.country}', '${obj.bio}')
+    ON CONFLICT (user_id)
+    DO UPDATE SET
+      username = EXCLUDED.username,
+      email = EXCLUDED.email,
+      country = EXCLUDED.country,
+      bio = EXCLUDED.bio;
+  `);
+  
   await client.end();
 }
 
