@@ -49,7 +49,6 @@ const SavedCountries = (props) => {
                             "Content-Type": "application/json",
                           }
     });
-    const data = await response.json();
   }
  
 
