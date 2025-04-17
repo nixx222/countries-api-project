@@ -1,11 +1,12 @@
 -- Creating the 'users' table
-CREATE TABLE users (
-    user_id 1,
+CREATE TABLE user_profile (
+    user_id INTEGER PRIMARY KEY, 
     username VARCHAR(50) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE
-    country VARCHAR(100) NOT NULL UNIQUE
-    bio VARCHAR(100) NOT NULL UNIQUE
+    email VARCHAR(100) NOT NULL UNIQUE,
+    country VARCHAR(100) NOT NULL,
+    bio VARCHAR(100) NOT NULL
 );
+
 
 -- Inserting sample data into 'users'
 INSERT INTO users (username, email, country, bio)
@@ -20,7 +21,7 @@ CREATE TABLE saved_countries (
 );
 
 -- Inserting sample data into 'saved_countries'
-INSERT INTO saved_countries (cca3, user_id, country_name) VALUES ('FRA', 0, 'France')
+INSERT INTO saved_countries (cca3, user_id, country_name) VALUES ('FRA', 1, 'France')
 
 -- Creating the 'country_counts' table
 CREATE TABLE country_counts (

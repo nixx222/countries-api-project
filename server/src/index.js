@@ -5,11 +5,12 @@ const { Client } = pg;
 let config = {
   user: process.env.USER,
   host: process.env.HOST,
-  databse: process.env.DATABASE,
-  password: process.env.password,
+  database: process.env.DATABASE,
+  password: process.env.PASSWORD,
   port: process.env.DATABASE_PORT,
   ssl: true,
 };
+
 
 //boiler plate express code which allows us to run our web server
 const app = express();
