@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import CountryCard from '../components/CountryCard'; // Adjust path if needed
 import "../styles/Home.css";
+import countryData from '../../data';
 
 const Home = ({ countryCall }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredCountries, setFilteredCountries] = useState(countryCall);
 
+  //countryCall is the list of countries pulled from the API that will then be filtered as the user searches. 
   useEffect(() => {
+    console.log("Here is the console log for countryCall", countryCall) 
     setFilteredCountries(
       countryCall.filter((country) =>
         country.name.common.toLowerCase().includes(searchQuery.toLowerCase())

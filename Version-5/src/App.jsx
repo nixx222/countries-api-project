@@ -2,28 +2,16 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import CountryDetails from "./pages/CountryDetails.jsx";
-import SavedCountries from "../../Version-3/src/pages/SavedCountries/SavedCountries.jsx";
+import SavedCountries from "../../Version-4/src/pages/SavedCountries/SavedCountries.jsx";
 import Header from "./components/Header.jsx"; // Importing the Header component
 import { useState, useEffect } from "react";
 import backupData from '../jsconfig.json'; // Adjust the path as needed
-import { initializeApp } from "firebase/app";
 
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_MESSAGE_SENDER_ID,
-  appId: import.meta.env.VITE_APP_ID,
-  measurementId: import.meta.env.VITE_MEASUREMENT_ID,
-
-};
 
 
 
 
 const App = () => {
-  const app = initializeApp(firebaseConfig);
   const [countryCall, setCountryCall] = useState([]);
   // const [savedCountries, setSavedCountries] = useState([]);
   const [error, setError] = useState(false); // To manage the error state
@@ -44,6 +32,7 @@ const App = () => {
         console.log("Error fetching from API, using backup:", error.message);
         setCountryCall(backupData); // Use backup data if API fails
         setError(true); // Set error state to true
+        console.log('this is backupData', backupData);
       });
   };
 

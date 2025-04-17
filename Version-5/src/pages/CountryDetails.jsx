@@ -1,71 +1,60 @@
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { getDatabase, ref, set, onValue } from "firebase/database";
+import { useState, useEffect } from "react"; // Added useEffect
 
 const CountryDetails = ({ countryCall }) => {
   const { alpha3Code } = useParams();
   const navigate = useNavigate();
   const country = countryCall.find((c) => c.cca3 === alpha3Code);
-  const db = getDatabase();
 
-  // State to store saved countries
-  const [savedCountries, setSavedCountries] = useState([]);
+  // State to store the visit count
+  const [visitCount, setVisitCount] = useState(0);
 
-  // State to store the click count for the current country
-  const [clickCount, setClickCount] = useState(0);
+  const updateClickCountRequest = async () => { //assigning a variable to the value of an async function. Async, because we are using an API and we need to ensure all parts of the process are rendered at the correct time, or else it will cause bugs and the app will not render. (Ex: Playing music, needing rests + counts, etc. or Ex: The ball in the obstacle course that needs the correct timing for the event to take place. )
+   const response = await fetch(`/api/country-clicked/${ alpha3Code }`) //I'm asssigning the variable response to the value of the action of fetching, "getting", or connecting to the back end via this API end point. The API endpoint is like the pathway or address that our little package or object of data, will need to follow in order to get to the correct location in the database. Similar to on Monsters inc how every door is located in a certain place and the key card calls that door, and knows where that door is located. 
+   console.log('response', response); //I console logged the "response" variable  to see what data was fetched on the journey to the back end.
+   const data = await response.json(); //I'm assigning the variable data to the value of "response", but translated into json. Only JSON can travel through the interwebs, so it needs to be converted back to data that the front end can use in order to show the user the data they are requesting. Ex: Willy Wonka wonka vision needed to break Mike TV down into particles floating above their heads, and rearranged back to the little screen in front of them.
+   console.log('data', data); //Console logging to see whhat the value of data looks like. Hint: It's the number of times the coutry has been clicked.
+   setVisitCount(data[0].click_amount); //I'm now calling the useState variable the store the specific data we need. It needed to be funneled down to the exact data, which is found by using bracket and dot notation, from the object that was sent from the backend database.
+   }
+   
+  useEffect(() => {  //When the component renders, useEffect automatically runs. Because we can't use an async await within a use effect, since that is counter intuitive to what a useEffect is, we can call the variable updateClickCountRequest to run as soon as the component renders. Supposedly there are supposed to be two parts to a useEffect, the codeblock within the curly braces and the ....? paramaters? found in the square  brackets. I don't know what the square bracket is doing, but apparently it's necessary and the code won't run without it.
+    updateClickCountRequest();
+  },[]
+);
 
-  // Retrieve saved countries from Firebase when the component mounts
-  useEffect(() => {
-    const savedCountriesRef = ref(db, "savedCountries");
-    onValue(savedCountriesRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data !== null) {
-        setSavedCountries(data);
+
+
+
+ // I need a await fetch that uses my api endpoint
+ // it needs to be a get request 
+ //I need to call setVisitCount because that is what stores the information temporarily. 
+ //
+
+
+
+  const saveCountry = async (country) => { 
+    console.log('this is country', country);
+    let myObj = {cca3: country.cca3, 
+      countryName: country.name.common
       }
-    });
-  }, [db]);
-
-  // Retrieve the click count for the current country from Firebase
-  useEffect(() => {
-    const clickCountRef = ref(db, `counts/${alpha3Code}`);
-    onValue(clickCountRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data !== null) {
-        setClickCount(data);
-      } else {
-        setClickCount(0); // Default to 0 if no count exists
+      console.log("this is myObj", myObj);
+    // Retrieve the existing saved countries from database
+      const response = await fetch("/api/add-country", {
+        method: "POST",
+        body: JSON.stringify(myObj),
+        headers: { "Content-Type": "application/json" },
       }
-    });
-  }, [db, alpha3Code]);
-
-  if (!country) {
-    return <p>Country not found!</p>;
-  }
-
-  const saveCountry = (country) => {
-    // Check if the country is already saved
-    const isCountryAlreadySaved = savedCountries.some(
-      (savedCountry) => savedCountry.cca3 === country.cca3
     );
+      console.log("Here is the data from savedCountries", response);
+    //be sure to include the keys for the key value pairs. 
+      //the backend needs specific objects with specific keys: Ex in the body include the 
+      //cca3 + countryName
+      }
+    
+console.log('this is countryCall', countryCall);
 
-    if (isCountryAlreadySaved) {
-      console.log("Country is already saved:", country.name.common);
-      return; // Exit the function if the country is already saved
-    }
 
-    // Add the new country to the array
-    const updatedSavedCountries = [...savedCountries, country];
-
-    // Save the updated array to Firebase
-    set(ref(db, "savedCountries"), updatedSavedCountries)
-      .then(() => {
-        console.log("Country saved to Firebase:", country.name.common);
-      })
-      .catch((error) => {
-        console.error("Error saving country to Firebase:", error);
-      });
-  };
 
   return (
     <div>
@@ -78,8 +67,8 @@ const CountryDetails = ({ countryCall }) => {
         <p className="population">Population: {country.population}</p>
         <p className="region">Region: {country.region}</p>
         <p className="capital">Capital: {country.capital}</p>
-        {/* Display the click count */}
-        <p className="click-count">This country has been viewed {clickCount} times.</p>
+        {/* Display the visit count */}
+        <p className="visit-count">This country has been viewed {visitCount} times.</p>
         <button onClick={() => saveCountry(country)} className="save-button">
           Save Country
         </button>
